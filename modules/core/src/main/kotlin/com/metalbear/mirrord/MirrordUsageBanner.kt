@@ -68,7 +68,9 @@ class MirrordUsageBanner : StartupActivity, StartupActivity.DumbAware {
     }
 
     override fun runActivity(project: Project) {
-        if (!MirrordSettingsState.instance.mirrordState.showUsageBanner) {
+        // usage banner messes with the projectViewTree from being displayed,
+        // therefore we set `mirrord.usage.banner` to disable in e2e
+        if (!MirrordSettingsState.instance.mirrordState.showUsageBanner || !System.getProperty("mirrord.usage.banner").toBoolean()) {
             return
         }
 

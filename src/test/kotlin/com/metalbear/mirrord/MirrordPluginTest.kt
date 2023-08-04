@@ -57,7 +57,8 @@ internal class MirrordPluginTest {
                     "robot-server.port" to 8082,
                     "idea.trust.all.projects" to true,
                     "robot-server.host.public" to true,
-                    "ide.show.tips.on.startup.default.value" to false
+                    "ide.show.tips.on.startup.default.value" to false,
+                    "mirrord.usage.banner" to false
                 ),
                 emptyList(),
                 listOf(ideDownloader.downloadRobotPlugin(tmpDir), pluginPath),
@@ -92,10 +93,6 @@ internal class MirrordPluginTest {
             }
         }
         idea {
-            step("Close usage banner") {
-                usageBanner.findText("Close").click()
-            }
-
             step("Create config file") {
                 waitFor(ofSeconds(60)) {
                     mirrordDropdownButton.isShowing
