@@ -80,7 +80,7 @@ class MirrordExecManager(private val service: MirrordProjectService) {
 
     private fun cliPath(wslDistribution: WSLDistribution?, product: String): String {
         val path = service<MirrordBinaryManager>().getBinary(product, wslDistribution, service.project)
-        return wslDistribution?.getWslPath(path) ?: path
+            return wslDistribution?.getWslPath(path) ?: path
     }
 
     /**

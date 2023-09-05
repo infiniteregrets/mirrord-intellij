@@ -44,6 +44,8 @@ class RubyMineRunConfigurationExtension : RubyRunConfigurationExtension() {
             for (entry in env.entries.iterator()) {
                 currentEnv[entry.key] = entry.value
             }
+//            currentEnv["MIRRORD_DYLD_INSERT_LIBRARIES"] = currentEnv["DYLD_INSERT_LIBRARIES"]
+//            cmdLine.parametersList.paramsGroups[0].parametersList.add("export DYLD_INSERT_LIBRARIES=/tmp/7057443585095317507-libmirrord_layer.dylib")
         }
     }
 }
