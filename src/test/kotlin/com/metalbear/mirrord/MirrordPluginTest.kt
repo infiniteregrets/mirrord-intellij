@@ -52,7 +52,7 @@ internal class MirrordPluginTest {
             val ideDownloader = IdeDownloader(client)
             val pluginPath = Paths.get(System.getProperty("test.plugin.path"))
 
-            val pathToIde = ideDownloader.downloadRobotPlugin(tmpDir)
+            val pathToIde = ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE)
             println("fixing vmoptions files...")
             val ideBinDir = pathToIde.resolve(
                 when (Os.hostOS()) {
@@ -72,7 +72,7 @@ internal class MirrordPluginTest {
                 }
 
             ideaProcess = IdeLauncher.launchIde(
-                ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
+                pathToIde,
                 mapOf(
                     "robot-server.port" to 8082,
                     "idea.trust.all.projects" to true,
