@@ -175,12 +175,18 @@ fun RemoteRobot.openFile(path: String) {
                 const project = frameHelper.getProject()
                 const projectPath = project.getBasePath()
                 const file = LocalFileSystem.getInstance().findFileByPath(projectPath + '/' + path)
-                FileEditorManager.getInstance(project).openTextEditor(
-                    new OpenFileDescriptor(
-                        project,
-                        file
-                    ), true
-                )
+                const openFileFunction = new Runnable({
+                    run: function() {
+                        FileEditorManager.getInstance(project).openTextEditor(
+                            new OpenFileDescriptor(
+                                project,
+                                file
+                            ), true
+                        )
+                    }
+                })
+           
+                ApplicationManager.getApplication().invokeLater(openFileFunction)
             }
         """,
         true
