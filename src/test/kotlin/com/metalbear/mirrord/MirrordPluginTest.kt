@@ -53,6 +53,32 @@ internal class MirrordPluginTest {
             val pluginPath = Paths.get(System.getProperty("test.plugin.path"))
             println("downloading IDE...")
             val pathToIde = ideDownloader.downloadRobotPlugin(tmpDir)
+
+            println("waiting for IDE...")
+
+            val vmOptions = """
+            -Xms128m
+            -Xmx750m
+            -XX:ReservedCodeCacheSize=512m
+            -XX:+UseG1GC
+            -XX:SoftRefLRUPolicyMSPerMB=50
+            -XX:CICompilerCount=2
+            -XX:+HeapDumpOnOutOfMemoryError
+            -XX:-OmitStackTraceInFastThrow
+            -XX:+IgnoreUnrecognizedVMOptions
+            -XX:CompileCommand=exclude,com/intellij/openapi/vfs/impl/FilePartNodeRoot,trieDescend
+            -ea
+            -Dsun.io.useCanonCaches=false
+            -Dsun.java2d.metal=true
+            -Djbr.catch.SIGABRT=true
+            -Djdk.http.auth.tunneling.disabledSchemes=""
+            -Djdk.attach.allowAttachSelf=true
+            -Djdk.module.illegalAccess.silent=true
+            -Dkotlinx.coroutines.debug=off
+            """.trimIndent()
+
+            val ideBinDir = pathToIde.resolve("bin")
+            Files.write(ideBinDir.resolve("idea.vmoptions"), vmOptions.toByteArray())
             ideaProcess = IdeLauncher.launchIde(
                 ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
                 mapOf(
@@ -65,17 +91,6 @@ internal class MirrordPluginTest {
                 listOf(pathToIde, pluginPath),
                 tmpDir
             )
-            println("waiting for IDE...")
-            val ideBinDir = pathToIde.resolve(
-                when (Os.hostOS()) {
-                    Os.MAC -> "Contents/bin"
-                    else -> "bin"
-                }
-            )
-            Files.list(ideBinDir).map {
-                // print the name of the file
-                println("IDE file: $it")
-            }
             waitForIgnoringError(ofMinutes(3)) { remoteRobot.callJs("true") }
         }
 
