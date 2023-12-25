@@ -7,6 +7,7 @@ import com.intellij.remoterobot.fixtures.GutterFixture
 import com.intellij.remoterobot.launcher.Ide
 import com.intellij.remoterobot.launcher.IdeDownloader
 import com.intellij.remoterobot.launcher.IdeLauncher
+import com.intellij.remoterobot.launcher.Os
 import com.intellij.remoterobot.steps.CommonSteps
 import com.intellij.remoterobot.stepsProcessing.step
 import com.intellij.remoterobot.utils.waitFor
@@ -51,6 +52,7 @@ internal class MirrordPluginTest {
             val ideDownloader = IdeDownloader(client)
             val pluginPath = Paths.get(System.getProperty("test.plugin.path"))
             println("downloading IDE...")
+            val pathToIde = ideDownloader.downloadRobotPlugin(tmpDir)
             ideaProcess = IdeLauncher.launchIde(
                 ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
                 mapOf(
@@ -60,10 +62,20 @@ internal class MirrordPluginTest {
                     "ide.show.tips.on.startup.default.value" to false
                 ),
                 emptyList(),
-                listOf(ideDownloader.downloadRobotPlugin(tmpDir), pluginPath),
+                listOf(pathToIde, pluginPath),
                 tmpDir
             )
             println("waiting for IDE...")
+            val ideBinDir = pathToIde.resolve(
+                when (Os.hostOS()) {
+                    Os.MAC -> "Contents/bin"
+                    else -> "bin"
+                }
+            )
+            Files.list(ideBinDir).map {
+                // print the name of the file
+                println("IDE file: $it")
+            }
             waitForIgnoringError(ofMinutes(3)) { remoteRobot.callJs("true") }
         }
 
