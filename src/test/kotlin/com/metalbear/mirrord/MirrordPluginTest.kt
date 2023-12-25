@@ -51,36 +51,26 @@ internal class MirrordPluginTest {
             steps = CommonSteps(remoteRobot)
             val ideDownloader = IdeDownloader(client)
             val pluginPath = Paths.get(System.getProperty("test.plugin.path"))
-            println("downloading IDE...")
+
             val pathToIde = ideDownloader.downloadRobotPlugin(tmpDir)
+            println("fixing vmoptions files...")
+            val ideBinDir = pathToIde.resolve(
+                when (Os.hostOS()) {
+                    Os.MAC -> "Contents/bin"
+                    else -> "bin"
+                }
+            )
+            Files
+                .list(ideBinDir)
+                .filter {
+                    val filename = it.fileName.toString()
+                    filename.endsWith(".vmoptions") && filename.contains("64") && filename != "pycharm64.vmoptions"
+                }
+                .forEach {
+                    println("Deleting problematic file $it")
+                    Files.delete(it)
+                }
 
-
-            val vmOptions = """
-            -Xms128m
-            -Xmx750m
-            -XX:ReservedCodeCacheSize=512m
-            -XX:+UseG1GC
-            -XX:SoftRefLRUPolicyMSPerMB=50
-            -XX:CICompilerCount=2
-            -XX:+HeapDumpOnOutOfMemoryError
-            -XX:-OmitStackTraceInFastThrow
-            -XX:+IgnoreUnrecognizedVMOptions
-            -XX:CompileCommand=exclude,com/intellij/openapi/vfs/impl/FilePartNodeRoot,trieDescend
-            -ea
-            -Dsun.io.useCanonCaches=false
-            -Dsun.java2d.metal=true
-            -Djbr.catch.SIGABRT=true
-            -Djdk.http.auth.tunneling.disabledSchemes=""
-            -Djdk.attach.allowAttachSelf=true
-            -Djdk.module.illegalAccess.silent=true
-            -Dkotlinx.coroutines.debug=off
-            """.trimIndent()
-            println("FUCK YOU")
-            val ideBinDir = pathToIde.resolve("bin")
-            Files.write(ideBinDir.resolve("idea64.vmoptions"), vmOptions.toByteArray())
-            val data = Files.readAllLines(ideBinDir.resolve("idea64.vmoptions"))
-            println("data: $data")
-            println("FUCK YOU")
             ideaProcess = IdeLauncher.launchIde(
                 ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
                 mapOf(
@@ -94,7 +84,6 @@ internal class MirrordPluginTest {
                 tmpDir
             )
             println("waiting for IDE...")
-            println("FUCK YOU")
             waitForIgnoringError(ofMinutes(3)) { remoteRobot.callJs("true") }
         }
 
