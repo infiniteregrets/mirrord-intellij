@@ -168,6 +168,7 @@ fun RemoteRobot.openFile(path: String) {
             importPackage(com.intellij.openapi.fileEditor)
             importPackage(com.intellij.openapi.vfs)
             importPackage(com.intellij.openapi.wm.impl)
+            importClass(com.intellij.openapi.application.ApplicationManager)
             
             const path = '$path'
             const frameHelper = ProjectFrameHelper.getFrameHelper(component)
