@@ -54,7 +54,6 @@ internal class MirrordPluginTest {
             println("downloading IDE...")
             val pathToIde = ideDownloader.downloadRobotPlugin(tmpDir)
 
-            println("waiting for IDE...")
 
             val vmOptions = """
             -Xms128m
@@ -78,7 +77,10 @@ internal class MirrordPluginTest {
             """.trimIndent()
 
             val ideBinDir = pathToIde.resolve("bin")
-            Files.write(ideBinDir.resolve("idea.vmoptions"), vmOptions.toByteArray())
+            Files.write(ideBinDir.resolve("idea64.vmoptions"), vmOptions.toByteArray())
+            val data = Files.readAllLines(ideBinDir.resolve("idea64.vmoptions"))
+            println("data: $data")
+
             ideaProcess = IdeLauncher.launchIde(
                 ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
                 mapOf(
@@ -91,6 +93,7 @@ internal class MirrordPluginTest {
                 listOf(pathToIde, pluginPath),
                 tmpDir
             )
+            println("waiting for IDE...")
             waitForIgnoringError(ofMinutes(3)) { remoteRobot.callJs("true") }
         }
 
