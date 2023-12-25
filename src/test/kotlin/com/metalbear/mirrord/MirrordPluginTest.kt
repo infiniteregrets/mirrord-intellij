@@ -75,12 +75,12 @@ internal class MirrordPluginTest {
             -Djdk.module.illegalAccess.silent=true
             -Dkotlinx.coroutines.debug=off
             """.trimIndent()
-
+            println("FUCK YOU")
             val ideBinDir = pathToIde.resolve("bin")
             Files.write(ideBinDir.resolve("idea64.vmoptions"), vmOptions.toByteArray())
             val data = Files.readAllLines(ideBinDir.resolve("idea64.vmoptions"))
             println("data: $data")
-
+            println("FUCK YOU")
             ideaProcess = IdeLauncher.launchIde(
                 ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE),
                 mapOf(
@@ -94,6 +94,7 @@ internal class MirrordPluginTest {
                 tmpDir
             )
             println("waiting for IDE...")
+            println("FUCK YOU")
             waitForIgnoringError(ofMinutes(3)) { remoteRobot.callJs("true") }
         }
 
