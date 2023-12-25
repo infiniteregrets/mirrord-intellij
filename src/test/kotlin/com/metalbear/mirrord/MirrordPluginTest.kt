@@ -14,12 +14,14 @@ import com.intellij.remoterobot.utils.waitFor
 import com.intellij.remoterobot.utils.waitForIgnoringError
 import com.metalbear.mirrord.utils.*
 import okhttp3.OkHttpClient
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestWatcher
 import java.awt.Point
-import java.awt.event.KeyEvent.*
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -52,7 +54,10 @@ internal class MirrordPluginTest {
             val ideDownloader = IdeDownloader(client)
             val pluginPath = Paths.get(System.getProperty("test.plugin.path"))
 
+            println("downloading IDE...")
             val pathToIde = ideDownloader.downloadAndExtract(Ide.PYCHARM_COMMUNITY, tmpDir, Ide.BuildType.RELEASE)
+
+            // IdeLauncher fails when the IDE bin directory does not contain exactly one `.vmoptions` file for 64 arch.
             println("fixing vmoptions files...")
             val ideBinDir = pathToIde.resolve(
                 when (Os.hostOS()) {
@@ -70,7 +75,6 @@ internal class MirrordPluginTest {
                     println("Deleting problematic file $it")
                     Files.delete(it)
                 }
-
             ideaProcess = IdeLauncher.launchIde(
                 pathToIde,
                 mapOf(
@@ -80,7 +84,7 @@ internal class MirrordPluginTest {
                     "ide.show.tips.on.startup.default.value" to false
                 ),
                 emptyList(),
-                listOf(pathToIde, pluginPath),
+                listOf(ideDownloader.downloadRobotPlugin(tmpDir), pluginPath),
                 tmpDir
             )
             println("waiting for IDE...")
